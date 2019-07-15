@@ -45,6 +45,7 @@ get_diagnostics <- function (dframe){
 
   # contrib_rids_pc - the % of ids which exist in the window that contribute
   # contrib_rids_nm - the number of ids which exist in the window that contribute
+  # weight_captured - proportion of total weight captured by those with more than 1 observation
   # total_rids_in_data - number of rids in the entire dataset
   # total_rids_in_window - number of rids which exist in the window
   # num_records_in_window - The quantity of data in this window
@@ -59,9 +60,23 @@ get_diagnostics <- function (dframe){
     group_by(id) %>%
     summarise(n = n()) %>%
     pull(n)
+  
+  captured_weight <- dframe %>%
+    droplevels() %>%
+    group_by(id)%>%
+    filter(n() > 1)%>%
+    summarise(weight = sum(weight))%>%
+    pull(weight)
+  
+  total_weight <- dframe %>%
+    ungroup() %>%
+    summarise(weight = sum(weight)) %>%
+    pull(weight)
+  
 
   data.frame(contrib_rids_pc = mean(entries_per_rid > 1)*100,
              contrib_rids_nm = sum(entries_per_rid > 1),
+             weight_captured = captured_weight/total_weight,
              total_rids_in_data = nlevels(dframe$id),
              total_rids_in_window = length(entries_per_rid),
              num_records_in_window = nrow(dframe),
