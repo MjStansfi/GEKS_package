@@ -76,8 +76,8 @@ get_diagnostics <- function (dframe){
   
 
   data.frame(contrib_rids_pc = mean(entries_per_rid > 1)*100,
-             contrib_rids_nm = sum(entries_per_rid > 1),
              weight_captured = captured_weight/total_weight,
+             contrib_rids_nm = sum(entries_per_rid > 1),
              total_rids_in_data = nlevels(dframe$id),
              total_rids_in_window = length(entries_per_rid),
              num_records_in_window = nrow(dframe),
