@@ -70,7 +70,7 @@ get_diagnostics <- function (dframe){
     pull(weight)
   
   total_weight <- dframe %>%
-    group_by() %>%
+    ungroup() %>%
     summarise(weight = sum(weight)) %>%
     pull(weight)
   
