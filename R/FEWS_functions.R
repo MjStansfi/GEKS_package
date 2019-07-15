@@ -65,11 +65,12 @@ get_diagnostics <- function (dframe){
     droplevels() %>%
     group_by(id)%>%
     filter(n() > 1)%>%
+    ungroup() %>%
     summarise(weight = sum(weight))%>%
     pull(weight)
   
   total_weight <- dframe %>%
-    ungroup() %>%
+    group_by() %>%
     summarise(weight = sum(weight)) %>%
     pull(weight)
   
