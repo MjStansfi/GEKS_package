@@ -228,5 +228,32 @@ movement_2_index <- function(movement){
 
 }
 
+#' Help calculate how many periods you need for desired index length
+#'
+#' The FEWS function truncates the results by removing the first window. This
+#' function helps you determine the amount of periods required to produced
+#' the desired FEWS index output length
+#'
+#' @param index_start how many periods back do you want the index to start (numeric)
+#' @param window_length  window length used
+#' 
+#' @return The numeric representation of how many periods you will need in your input
+#' dataset to calculate an index of length 'index_start' with a window length of 'window_length'
 
+#' @examples
+#' #I want to calculate an index from June to June for a monthly index with a window length
+#' #of 27 months
+#' 
+#' #index_start will be 13 as this is the number of periods for June to June
+#' 
+#' length_calc(index_start = 13, window_length = 27)
+#' 
+#' #Total periods required:  39 
+#'
+#' @export
+length_calc <- function(index_start, window_length){
+  
+  cat("Total periods in dataset required: ", index_start + window_length - 1,'\n')
+  
+}
 
