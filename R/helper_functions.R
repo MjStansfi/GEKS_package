@@ -251,9 +251,12 @@ movement_2_index <- function(movement){
 #' #Total periods required:  39 
 #'
 #' @export
-length_calc <- function(index_start, window_length){
+length_calc <- function(index_start, window_length, verbose = TRUE){
   
+  if(verbose){
   cat("Total periods in dataset required: ", index_start + window_length - 1,'\n')
+  }
   
+  return(index_start + window_length - 1)
 }
 
