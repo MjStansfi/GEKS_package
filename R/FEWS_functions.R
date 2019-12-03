@@ -135,12 +135,7 @@ lmfun <- function(dframe){
   } else {
     glm_formula <- dframe$logprice ~ dframe$timefact + dframe$IDfact
   }
-
-
-  # make the design matrix - model.Matrix is used due to support for
-  # sparse matrices
-  design_mat <- model.Matrix(glm_formula, sparse = TRUE)
-
+  
   # Run the regression
   all_coefs <-  coef(glm4(glm_formula,
                           weights = dframe$weight,
