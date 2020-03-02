@@ -1,7 +1,7 @@
 Package: FEWS
 Type: Package
 Title: Calculate Fixed Effects Indexes with Various Splice Options
-Version: 0.1.0.9000
+Version: 0.1.1.0
 Author: D Lynch <donal.lynch@stats.govt.nz>
 Maintainer: D Lynch <donal.lynch@stats.govt.nz>
 Description: Provides a selection of functions which calculate the fixed
