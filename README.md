@@ -10,8 +10,8 @@ Installation
 FEWS is still in development, with the intention that it will exist on CRAN. For now it can be installed from GitHub using the following code
 
 ``` r
-
-devtools::install_github("Donal-lynch/FEWS_package")
+devtools::install_github("MjStansfi/FEWS_package")
+#devtools::install_github("Donal-lynch/FEWS_package")
 
 # Once installed, the package can be loaded as usual
 library(FEWS)
