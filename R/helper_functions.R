@@ -39,7 +39,7 @@ check_inputs <- function (times = times, logprice = logprice, id = id,
   }
 
 
-  splice_pos_all <- c("window", "half", "movement", "mean", "alan")
+  splice_pos_all <- c("window", "half", "movement", "mean", "geomean")
   if (!( is.numeric(splice_pos) | is.integer(splice_pos))) {
     # splice_pos not a number
     # convert to lower case, to help user error
@@ -155,21 +155,21 @@ get_win_dates <- function(st_date, window_length){
 gm_mean <- function(x, na.rm = TRUE){
   # Implementation Stolen from here:
   # https://stackoverflow.com/questions/2602583/geometric-mean-is-there-a-built-in
-  
+
   # This is a safer implementation than using PRODUCT () as floating point
   # errors are vrey likely when using PRODUCT () for many large or small numbers
-  
+
   if(any(x[!is.na(x)] <= 0)){
     warning("Non-positive values being ignored from supplied vector")
   }
   if(any(is.na(x)) && na.rm){
     warning("NA values being ignored from supplied vector")
   }
-  
+
   #Also note this excludes any observation less than or equal to
   #zero in the calculation
   exp(mean(log(x[x > 0]), na.rm = na.rm))
-  
+
 }
 
 
@@ -236,27 +236,27 @@ movement_2_index <- function(movement){
 #'
 #' @param index_start how many periods back do you want the index to start (numeric)
 #' @param window_length  window length used
-#' 
+#'
 #' @return The numeric representation of how many periods you will need in your input
 #' dataset to calculate an index of length 'index_start' with a window length of 'window_length'
 
 #' @examples
 #' #I want to calculate an index from June to June for a monthly index with a window length
 #' #of 27 months
-#' 
+#'
 #' #index_start will be 13 as this is the number of periods for June to June
-#' 
+#'
 #' length_calc(index_start = 13, window_length = 27)
-#' 
-#' #Total periods required:  39 
+#'
+#' #Total periods required:  39
 #'
 #' @export
 length_calc <- function(index_start, window_length, verbose = TRUE){
-  
+
   if(verbose){
   cat("Total periods in dataset required: ", index_start + window_length - 1,'\n')
   }
-  
+
   return(index_start + window_length - 1)
 }
 
