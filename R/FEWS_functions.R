@@ -60,7 +60,7 @@ get_diagnostics <- function (dframe){
     group_by(id) %>%
     summarise(n = n()) %>%
     pull(n)
-  
+
   captured_weight <- dframe %>%
     droplevels() %>%
     group_by(id)%>%
@@ -68,12 +68,12 @@ get_diagnostics <- function (dframe){
     ungroup() %>%
     summarise(weight = sum(weight))%>%
     pull(weight)
-  
+
   total_weight <- dframe %>%
     ungroup() %>%
     summarise(weight = sum(weight)) %>%
     pull(weight)
-  
+
 
   data.frame(contrib_rids_pc = mean(entries_per_rid > 1)*100,
              weight_captured = captured_weight/total_weight,
@@ -96,7 +96,7 @@ lmfun <- function(dframe){
   #   dframe - a dframe frame with logprices, weights and id's
   # Returns
   #   modelOutput - the output of the linear model
-  
+
   # A cryptic error is thrown if there is a time period which has no id's whcih
   # are present in other id's. Doing a test for this, and giving a more sensible
   # error. To solve this either remove the offending time period or impute
@@ -112,7 +112,7 @@ lmfun <- function(dframe){
          "time periods. The offending time periods are: \n",
          paste(bad_times, collapse = ", "))
   }
-  
+
   diagnostics <- get_diagnostics(dframe)
 
   # Refactor the dates here. Otherwise columns are created in the regression
@@ -135,7 +135,7 @@ lmfun <- function(dframe){
   } else {
     glm_formula <- dframe$logprice ~ dframe$timefact + dframe$IDfact
   }
-  
+
   # Run the regression
   all_coefs <-  coef(glm4(glm_formula,
                           weights = dframe$weight,
@@ -280,7 +280,7 @@ splice_update <- function (win_old, win_new, splice_pos){
   }else if (splice_pos == "movement") {
     update_factor <- (Pw1_new/Pw_new)
 
-  } else if(splice_pos == "alan"){
+  } else if(splice_pos == "geomean"){
     t_accum <- c() # Accumulator for the t loop
     for (t in seq(from = 2, to = w-1, by = 1)) {
       Pt_new <- win_new[t]
