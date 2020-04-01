@@ -1,17 +1,16 @@
-Package: FEWS
+Package: GEKS
 Type: Package
-Title: Calculate Fixed Effects Indexes with Various Splice Options
+Title: Calculate GEKS Indexes with Various Splice Options
 Version: 0.1.1.0
-Author: D Lynch <donal.lynch@stats.govt.nz>
-Maintainer: D Lynch <donal.lynch@stats.govt.nz>
+Author: M Stansfield <matthew.stansfield@stats.govt.nz>
+Maintainer: M Stansfield <matthew.stansfield@stats.govt.nz>
 Description: Provides a selection of functions which calculate the fixed
     effects index over a window, and splices the results together.
-    The functions have the option to be run in parallel using
-    the doSNOW package.
+    Derived from FEWS package (D Lynch) and IndexNumR (G White)
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Imports:
   methods,
   stats,
@@ -23,3 +22,4 @@ Imports:
 Suggests:
   doSNOW,
   snow
+Remotes: github::grahamjwhite/IndexNumR

@@ -1,5 +1,7 @@
-FE_model <- function(st_date, dframe, window_length ) {
-  # Run linear regression on every window and extract the coefficients
+FE_model <- function(st_date, dframe, window_length,index_method) {
+
+
+  # Calculate GEKS on every window and extract the coefficients
   # for the time values only
   # Arguments:
   #     st_date - a date indicating the start day of the window
@@ -14,24 +16,31 @@ FE_model <- function(st_date, dframe, window_length ) {
   win_dates <- get_win_dates(st_date, window_length)
 
   # Subset dframe by the dates in this window
-  # dframe_win <- dframe %>%
-  #   filter(times_index %in% win_dates)
-
-
   dframe_win <- dframe[dframe$times_index %in%
                              win_dates, ]
 
 
 
-  # Run the linear model and extract the coefficients from the regression
-  lmfun_list <- lmfun(dframe_win)
+  # Convert times into numeric continuous starting from 1
+  dframe_win$times_n <- as.numeric(as.factor(dframe_win$times))
 
-  fe_coefs <- lmfun_list$fe_coefs
-  diagnostics <- lmfun_list$diagnostics
+  #https://github.com/grahamjwhite/IndexNumR
+  #This function does handle its on splicing and there are defaults
+  #however because the dframe going in is exact length of window
+  #splicing does not occur at this stage, it happens in get_geks_df
+  fe_coefs <- GEKSIndex(dframe_win,
+                        pvar = "price",
+                        qvar = "weight",
+                        pervar = "times_n",
+                        prodID = "id",
+                        window = window_length,
+                        indexMethod = index_method)
 
-  # fe_coefs should equal the length of window minus the 1. The reason it is -1
-  # is due to the fact that 1 coefficient is sacrificed to the intercept
-  if ((length(fe_coefs) + 1) != window_length){
+
+  diagnostics <- get_diagnostics(dframe_win)
+
+  # fe_coefs should equal the length of window
+  if ((length(fe_coefs)) != window_length){
     # TODO Should this be an error?
     stop(paste("The number of time coefficients does not match the window",
                "length? Check that your times are correct\n"))
@@ -89,75 +98,12 @@ get_diagnostics <- function (dframe){
 
 }
 
-#' @import MatrixModels
-lmfun <- function(dframe){
-  # Regress the dates and id's as factors against logprice
-  # Arguments
-  #   dframe - a dframe frame with logprices, weights and id's
-  # Returns
-  #   modelOutput - the output of the linear model
-
-  # A cryptic error is thrown if there is a time period which has no id's whcih
-  # are present in other id's. Doing a test for this, and giving a more sensible
-  # error. To solve this either remove the offending time period or impute
-  ids_more_than_1 <- dframe$id[duplicated(dframe$id)]
-  id_counts <- group_by(dframe, times) %>%
-    summarise(unq = mean(id %in% ids_more_than_1))
-
-  if (any(id_counts$unq == 0)){
-    bad_times <- id_counts %>%
-      filter(unq == 0) %>%
-      pull(times)
-    stop("One or more time periods have only got ids which occur at no other ",
-         "time periods. The offending time periods are: \n",
-         paste(bad_times, collapse = ", "))
-  }
-
-  diagnostics <- get_diagnostics(dframe)
-
-  # Refactor the dates here. Otherwise columns are created in the regression
-  # matrix with all zeros, corresponding to dates not in the current window
-  dframe$timefact <- factor(dframe$times_index)
-  dframe$IDfact <- factor(dframe$id)
-
-  # glm uses the alphabetically first id as the reference. However, if this
-  # value doesn't appear in the then all other values are being compared
-  # to a number that is essentially zero. Hence you can get crazily high numbers
-  # like indexes of 10^50 from normal looking data
-  dframe <- within(dframe,
-                   IDfact <- relevel(IDfact,
-                                     ref = as.character(dframe$IDfact[1])))
-
-
-  # Regression doesn't work if there is only 1 item in the time window.
-  if (nlevels(dframe$IDfact) == 1) {
-    glm_formula <- dframe$logprice ~ dframe$timefact
-  } else {
-    glm_formula <- dframe$logprice ~ dframe$timefact + dframe$IDfact
-  }
-
-  # Run the regression
-  all_coefs <-  coef(glm4(glm_formula,
-                          weights = dframe$weight,
-                          sparse = TRUE))
-
-  # There are coefficients returned for each time period, and each product.
-  # we are only interested in change of price wrt time - so only keep theses
-  # coefficients. Theses rownames start with timefact
-  rows_keep <- grepl(".*timefact.*", names(all_coefs))
-
-  # subest to just timefact values, and return in a list
-  list(fe_coefs = all_coefs[rows_keep],
-       diagnostics = diagnostics)
-}
-
-
 get_fe_list <- function (fe_indexes,
                          dframe,
                          window_st_days,
                          window_length) {
-  # Takes the lm model outputs and makes a list with of dataframes containing
-  # Regression coefficients (i.e. indexes) and correct dates
+  # Takes the fe outputs and makes a list with of dataframes containing
+  # indexes and correct dates
   #
   # Arguments:
   #     FEindxes - is a matrix of dim(window_length, num_windows) containing all
@@ -197,7 +143,7 @@ get_fe_list <- function (fe_indexes,
 }
 
 
-get_fews_df <- function (fe_list, window_length, splice_pos) {
+get_geks_df <- function (fe_list, window_length, splice_pos) {
   # Splice the windows together to produce a continuous time series of indexes
   # Arguments:
   #   fe_list - output from get_fe_list. See that  function for details
@@ -209,7 +155,7 @@ get_fews_df <- function (fe_list, window_length, splice_pos) {
   # Initialise the df with a 1 for the first time period
   last_date <- tail(fe_list[[1]]$price_date, 1)
 
-  fews <- data.frame(price_date = last_date,
+  geks <- data.frame(price_date = last_date,
                      fe_indexes = 1,
                      window_id = 1)
 
@@ -219,28 +165,28 @@ get_fews_df <- function (fe_list, window_length, splice_pos) {
     old_window <- fe_list[[i - 1]]$fe_indexes
     new_window <- fe_list[[i]]$fe_indexes
 
-    # Get the previous FEWS index value
-    old_fews <- fews$fe_indexes[nrow(fews)]
+    # Get the previous GEKS index value
+    old_geks <- geks$fe_indexes[nrow(geks)]
 
     update_factor <- splice_update (old_window,
                                     new_window,
                                     splice_pos = splice_pos)
 
-    # Get the "new" FEWS index value
-    new_fews <- old_fews * update_factor
+    # Get the "new" GEKS index value
+    new_geks <- old_geks * update_factor
 
     # buid up the new row
     # price_date is the last date in the current window
     last_date <- tail(fe_list[[i]]$price_date, 1)
 
     new_row <- data.frame(price_date = last_date,
-                          fe_indexes = new_fews,
+                          fe_indexes = new_geks,
                           window_id = i)
 
-    fews <- rbind(fews, new_row)
+    geks <- rbind(geks, new_row)
   }
 
-  return (fews)
+  return (geks)
 }
 
 

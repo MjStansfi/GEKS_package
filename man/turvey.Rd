@@ -3,7 +3,7 @@
 \docType{data}
 \name{turvey}
 \alias{turvey}
-\title{Artifical prices of seasonal products Data created by R. Turvey}
+\title{Artificial prices of seasonal products Data created by R. Turvey}
 \format{data frame with 176 rows and 4 variables
 \describe{
   \item{month}{The time as a Date type}

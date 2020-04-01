@@ -1,4 +1,4 @@
-check_inputs <- function (times = times, logprice = logprice, id = id,
+check_inputs <- function (times = times, price = price, id = id,
                           weight = weight, window_length = window_length,
                           splice_pos = splice_pos) {
   # Function to confirm that all inputs are correct shape and class
@@ -10,19 +10,19 @@ check_inputs <- function (times = times, logprice = logprice, id = id,
   }
 
 
-  if (anyNA(times) | anyNA(logprice) | anyNA(id) | anyNA(weight)){
+  if (anyNA(times) | anyNA(price) | anyNA(id) | anyNA(weight)){
     stop("Data contains NA values")
   }
 
   if (any(c(is.infinite(times),
-            is.infinite(logprice),
+            is.infinite(price),
             is.infinite(weight)))){
     stop("Data contains Infinite values")
   }
 
 
-  if (length(times) != length(logprice)){
-    stop("times and logprice should be vectors of the same length")
+  if (length(times) != length(price)){
+    stop("times and price should be vectors of the same length")
   }else if (length(times) != length(id)){
     stop("times and id should be vectors of the same length")
   }else if (length(times) != length(weight)){
@@ -62,7 +62,7 @@ check_inputs <- function (times = times, logprice = logprice, id = id,
     }
   }
 
-  return (list(times = times, logprice = logprice, id = id, weight = weight,
+  return (list(times = times, price = price, id = id, weight = weight,
                window_length = window_length, splice_pos = splice_pos))
 }
 
@@ -134,9 +134,6 @@ get_win_dates <- function(st_date, window_length){
 
   seq(st_date, by = 1, length.out = window_length)
 }
-
-
-
 
 #' Geometric mean
 #'

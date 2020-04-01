@@ -1,8 +1,7 @@
-#' Fixed effects with window splice
+#' GEKS-tornqvist
 #'
-#' Takes a time series of prices and id's and returns an index using the FEWS
-#' (Fixed Effects Window Splice) method or also known as a TPD
-#' (Time Product Dummy) index.
+#' Takes a time series of prices and id's and returns an index using the GEKS
+#' method.
 #'
 #' The function takes vectors for each of the inputs. It is important to note
 #' that the \code{times} argument must be of numeric or Date class. This is because
@@ -14,7 +13,7 @@
 #'
 #' @param times vector of the times at which price observations were made. \cr
 #' NOTE: \code{times} must be of class Date or numeric.
-#' @param logprice vector of log of prices at the given time
+#' @param price vector of log of prices at the given time
 #' @param id vector of distinct identification number of consumer goods
 #' @param window_length single number for length of windows of the data that
 #' regressions are fit on
@@ -22,11 +21,13 @@
 #' @param splice_pos The position on which to splice the windows together.
 #' This can be a number from 1 to window_length or any of
 #' c("window", "half","movement", "mean").
+#' @param index_method A character string to select the index number method.
+#' Valid index number methods are fisher or tornqvist. The default is tornqvist. (see ?IndexNumR::GEKSIndex)
 #' @param num_cores Number of cores to use for parallel computation.
 #' Convention is parallel::detectCores()-1 on local machines
 #' @return The function returns a list of 3 items:
 #'     \describe{
-#'         \item{\strong{fews}}{a dataframe of the FEWS index}
+#'         \item{\strong{geks}}{a dataframe of the GEKS index}
 #'         \item{\strong{fixed_effects}}{a dataframe of the unspliced coefficients
 #'         of the fixed effects model. The number of rows in the data frame is
 #'         \code{window_length} * the number of windows in the data}
@@ -59,16 +60,16 @@
 #'               }
 #'               }
 #' @examples
-#' FEWS(times = turvey$month,
-#' logprice = log(turvey$price),
+#' GEKS(times = turvey$month,
+#' price = turvey$price,
 #' id = turvey$commodity,
 #' window_length = 5,
 #' weight = turvey$price * turvey$quantity,
 #' splice_pos = "mean",
 #' num_cores = NULL)
 #'
-#' FEWS(times = turvey$month,
-#' logprice = log(turvey$price),
+#' GEKS(times = turvey$month,
+#' price = turvey$price,
 #' id = turvey$commodity,
 #' window_length = 5,
 #' weight = turvey$price * turvey$quantity,
@@ -78,11 +79,14 @@
 #' @export
 #' @import dplyr
 #' @import foreach
+#' @import IndexNumR
 #' @importFrom methods is
 #' @importFrom stats median quantile relevel
 #' @importFrom utils head setTxtProgressBar tail txtProgressBar
-FEWS <-  function(times, logprice, id, window_length, weight = NULL,
-                  splice_pos = "mean", num_cores = NULL) {
+GEKS <-  function(times, price, id, window_length, weight = NULL,
+                  splice_pos = "mean",
+                  index_method = "tornqvist",
+                  num_cores = NULL) {
 
 
   timer <- Sys.time() # Get the current time
@@ -90,9 +94,9 @@ FEWS <-  function(times, logprice, id, window_length, weight = NULL,
   # check arguments are all legit
   # times will be converted to numeric if it is a date, and a date_flag is
   # returned so that the times can be coerced back into a date before returning
-  c(times, logprice, id, weight, window_length, splice_pos) %=%
+  c(times, price, id, weight, window_length, splice_pos) %=%
     check_inputs (times = times,
-                  logprice = logprice,
+                  price = price,
                   id = id,
                   weight = weight,
                   window_length = window_length,
@@ -101,7 +105,7 @@ FEWS <-  function(times, logprice, id, window_length, weight = NULL,
 
   # make a data frame from all of the inputs
   prices.df <- data.frame(times = times,
-                          logprice = logprice,
+                          price = price,
                           weight = weight,
                           id = id)
 
@@ -146,7 +150,8 @@ FEWS <-  function(times, logprice, id, window_length, weight = NULL,
                                .export = rqd_data) %dopar% {
                                  FE_model (st_date = window_st_days[i],
                                            dframe = prices.df,
-                                           window_length = window_length)}
+                                           window_length = window_length,
+                                           index_method = index_method)}
 
     # fe_ind_and_diag is a list of lists. unpack into 2 sperate lists of vectors
     fe_indexes <-  lapply(fe_ind_and_diag, "[[", 1)
@@ -157,7 +162,7 @@ FEWS <-  function(times, logprice, id, window_length, weight = NULL,
   } else {
     # Non Parallel Code ======================================================
     if (!is.null(num_cores)){
-      warning("You have selected a number of cores, but FEWS is running ",
+      warning("You have selected a number of cores, but GEKS is running ",
               "non-Parallel code. Have you installed the doSNOW package?")
     }
     # Initialise the list
@@ -171,7 +176,8 @@ FEWS <-  function(times, logprice, id, window_length, weight = NULL,
       c(fe_indexes[[i]],
         diagnostics[[i]]) %=% FE_model(st_date = window_st_days[i],
                                        dframe = prices.df,
-                                       window_length = window_length)
+                                       window_length = window_length,
+                                       index_method = index_method)
 
       setTxtProgressBar(pb, i)
     }
@@ -183,15 +189,16 @@ FEWS <-  function(times, logprice, id, window_length, weight = NULL,
   fe_indexes <- as.data.frame(fe_indexes)
 
   # Diagnostics from list to long df, and add a column for window_id
+  # diagnostics <- data.frame()
   diagnostics <- bind_rows(diagnostics) %>%
     mutate(window_id = 1:length(diagnostics))
 
   cat("\nFE model complete. Splicing results together\n")
 
   # Convert back fom log price
-  fe_indexes <- exp (fe_indexes)
+  # fe_indexes <- exp (fe_indexes)
   # Add in a row of 1's for the baseline month
-  fe_indexes <- rbind (rep(1, each = ncol(fe_indexes)), fe_indexes)
+  # fe_indexes <- rbind (rep(1, each = ncol(fe_indexes)), fe_indexes)
 
   # fe_list is a list of each window's fixed effects index
   fe_list <- get_fe_list (fe_indexes = fe_indexes,
@@ -199,8 +206,8 @@ FEWS <-  function(times, logprice, id, window_length, weight = NULL,
                           window_st_days = window_st_days,
                           window_length = window_length)
 
-  # Make the FEWS from the fe_list
-  fews_df <- get_fews_df (fe_list = fe_list,
+  # Make the GEKS from the fe_list
+  geks_df <- get_geks_df (fe_list = fe_list,
                           window_length = window_length,
                           splice_pos = splice_pos)
 
@@ -208,7 +215,7 @@ FEWS <-  function(times, logprice, id, window_length, weight = NULL,
   cat("\nFinished. It took", round(Sys.time() - timer, 2), "seconds\n\n")
 
   # Wrap the output in a list and return
-  list(fews = fews_df,
+  list(geks = geks_df,
        fixed_effects = bind_rows(fe_list),
        diagnostics = diagnostics)
 }
