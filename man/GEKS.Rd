@@ -24,6 +24,9 @@ regressions are fit on}
 This can be a number from 1 to window_length or any of
 c("window", "half","movement", "mean").}
 
+\item{index_method}{A character string to select the index number method.
+Valid index number methods are fisher or tornqvist. The default is tornqvist. (see ?IndexNumR::GEKSIndex)}
+
 \item{num_cores}{Number of cores to use for parallel computation.
 Convention is parallel::detectCores()-1 on local machines}
 }
@@ -78,7 +81,7 @@ associated with dividing the job across multiple processors.
 }
 \examples{
 GEKS(times = turvey$month,
-price = log(turvey$price),
+price = turvey$price,
 id = turvey$commodity,
 window_length = 5,
 weight = turvey$price * turvey$quantity,
@@ -86,7 +89,7 @@ splice_pos = "mean",
 num_cores = NULL)
 
 GEKS(times = turvey$month,
-price = log(turvey$price),
+price = turvey$price,
 id = turvey$commodity,
 window_length = 5,
 weight = turvey$price * turvey$quantity,

@@ -79,7 +79,6 @@
 #' @export
 #' @import dplyr
 #' @import foreach
-#' @import IndexNumR
 #' @importFrom methods is
 #' @importFrom stats median quantile relevel
 #' @importFrom utils head setTxtProgressBar tail txtProgressBar

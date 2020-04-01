@@ -1,11 +1,4 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-    ## 
-    ## Attaching package: 'FEWS'
-
-    ## The following objects are masked from 'package:GEKS':
-    ## 
-    ##     gm_mean, index_2_movement, length_calc, movement_2_index
-
 GEKS
 ====
 
@@ -14,6 +7,12 @@ package](https://github.com/MjStansfi/FEWS_package). Where the
 individual fixed effects calculation occurs, it has been replaced by the
 GEKS calculation from [IndexNumR: A Package for Index Number
 Calculation](https://cran.r-project.org/web/packages/IndexNumR/vignettes/indexnumr.html#the-geks-method).
+
+-   To see the original FEWS package written by Donal Lynch [go
+    here](https://github.com/Donal-lynch/FEWS_package)
+
+-   To see the complete IndexNumR package written by Graham White [go
+    here](https://github.com/grahamjwhite/IndexNumR)
 
 Installation
 ============
@@ -24,13 +23,15 @@ using the following code
 ``` r
 
 devtools::install_github("MjStansfi/GEKS_package")
+devtools::install_github("grahamjwhite/IndexNumR")
 
 #Other suggestions
 # devtools::install_github("MjStansfi/FEWS_package")
-#devtools::install_github("MjStansfi/TPDdecomp")
+# devtools::install_github("MjStansfi/TPDdecomp")
 
 # Once installed, the package can be loaded as usual
-# library(GEKS)
+library(GEKS)
+library(IndexNumR)
 ```
 
 Usage

@@ -28,13 +28,13 @@ FE_model <- function(st_date, dframe, window_length,index_method) {
   #This function does handle its on splicing and there are defaults
   #however because the dframe going in is exact length of window
   #splicing does not occur at this stage, it happens in get_geks_df
-  fe_coefs <- GEKSIndex(dframe_win,
-                        pvar = "price",
-                        qvar = "weight",
-                        pervar = "times_n",
-                        prodID = "id",
-                        window = window_length,
-                        indexMethod = index_method)
+  fe_coefs <- IndexNumR::GEKSIndex(dframe_win,
+                                   pvar = "price",
+                                   qvar = "weight",
+                                   pervar = "times_n",
+                                   prodID = "id",
+                                   window = window_length,
+                                   indexMethod = index_method)
 
 
   diagnostics <- get_diagnostics(dframe_win)
