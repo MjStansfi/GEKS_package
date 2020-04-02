@@ -8,9 +8,7 @@ FE_model <- function(st_date, dframe, window_length,index_method) {
   #     dframe - a data frame of prices
   #     window_length - the length of the window
   # Returns:
-  #     fe_coefs - the coefficients from the fe TPD model. 1 coefficient for
-  #         each time unit in window_length EXCEPT the first
-  #         Length is window length - 1
+  #     index for given window and associated diagnostics in the form of a list
 
   # Get the dates of each day in this window
   win_dates <- get_win_dates(st_date, window_length)
@@ -107,9 +105,7 @@ get_fe_list <- function (fe_indexes,
   #
   # Arguments:
   #     FEindxes - is a matrix of dim(window_length, num_windows) containing all
-  #         of the output coefficients from the lm. all values converted back
-  #         from log and 1 append as the first month in each case
-  #     window_st_days - a sequence of the start date of each window
+  #         window indexes
   # Returns:
   #     fe_list - a list of dataframes. Length is number of windows.
   #         nrow of each data frame is window length.
