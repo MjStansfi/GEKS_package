@@ -23,7 +23,7 @@ FE_model <- function(st_date, dframe, window_length,index_method) {
   dframe_win$times_n <- as.numeric(as.factor(dframe_win$times))
 
   #https://github.com/grahamjwhite/IndexNumR
-  #This function does handle its on splicing and there are defaults
+  #This function does handle its own splicing and there are defaults
   #however because the dframe going in is exact length of window
   #splicing does not occur at this stage, it happens in get_geks_df
   fe_coefs <- IndexNumR::GEKSIndex(dframe_win,
