@@ -2,6 +2,8 @@
 GEKS
 ====
 
+This has not been thoroughly tested
+
 This package is a modification of the [FEWS
 package](https://github.com/MjStansfi/FEWS_package). Where the
 individual fixed effects calculation occurs, it has been replaced by the
