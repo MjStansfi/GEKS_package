@@ -22,7 +22,7 @@
 #' This can be a number from 1 to window_length or any of
 #' c("window", "half","movement", "mean").
 #' @param index_method A character string to select the index number method.
-#' Valid index number methods are fisher or tornqvist. The default is tornqvist. (see ?IndexNumR::GEKSIndex)
+#' Valid index number methods are fisher, tornqvist, impute-tronqvist. The default is tornqvist. (see ?IndexNumR::GEKSIndex)
 #' @param num_cores Number of cores to use for parallel computation.
 #' Convention is parallel::detectCores()-1 on local machines
 #' @return The function returns a list of 3 items:
@@ -108,16 +108,14 @@ GEKS <-  function(times, price, id, features=NULL, window_length, weight = NULL,
                           weight = weight,
                           id = id)
 
-  if(index_method=="impute-tornqvist"){
-
-    if(is.null(features)&index_method=="impute-tornqvist"){
-      stop("You must provide a data frame of features
+  if(is.null(features)&index_method=="impute-tornqvist"){
+    stop("You must provide a data frame of features
          and the id when calculating impute-tornqvist")
-    }else if(index_method!="impute-tornqvist"){
-      features <- id
-    }
+  }else if(index_method!="impute-tornqvist"){
+    features <- id
+  }
 
-
+  if(index_method=="impute-tornqvist"){
   prices.df <- cbind(prices.df,features)
   }
   # It is essential that the data frame is sorted by date
@@ -188,7 +186,7 @@ GEKS <-  function(times, price, id, features=NULL, window_length, weight = NULL,
       c(fe_indexes[[i]],
         diagnostics[[i]]) %=% FE_model(st_date = window_st_days[i],
                                        dframe = prices.df,
-                                       features = features,
+                                       features = colnames(features),
                                        window_length = window_length,
                                        index_method = index_method)
 

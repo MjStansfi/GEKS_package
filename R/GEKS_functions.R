@@ -350,8 +350,6 @@ tornqvist_t <- function(p0,p1,q0,q1){
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, see <http://www.gnu.org/licenses/>.
 
-
-
 #' GEKS_w
 #'
 #' Function to compute a GEKS index over a window.
@@ -518,11 +516,6 @@ GEKSIndex <- function(x,pvar,qvar,pervar,
     stop("Not a valid index number method.")
   }
 
-  # check that only valid splice methods are chosen
-  if(!(tolower(splice) %in% c("mean","window","movement","half"))){
-    stop("Not a valid splicing method.")
-  }
-
   # check valid column names are given
   colNameCheck <- checkNames(x, c(pvar, qvar, pervar, unique_prodID))
   if(colNameCheck$result == FALSE){
@@ -579,46 +572,6 @@ GEKSIndex <- function(x,pvar,qvar,pervar,
     naWarn <- character()
   }
 
-  # use a splicing method to compute the rest of the index
-  if(n>window){
-    for(i in 2:(n-window+1)){
-      # set the old GEKS window
-      if(i==2){
-        oldGEKS <- pGEKS[(i-1):(i+window-2),1]
-      }      else {
-        oldGEKS <- newGEKS
-      }
-
-      # fetch the next window of data
-      xWindow <- x[x[[pervar]]>=i & x[[pervar]] < i + window,]
-
-      if(indexMethod=="impute-tornqvist"){
-
-        prodIDWindow <- x[x[[pervar]]>=i & x[[pervar]] < i + window,prodID]
-        prodIDWindow <- prodIDWindow%>%droplevels()
-        # prodID <- prodIDWindow
-        # x <- xWindow
-        tempGEK <- GEKS_w(xWindow,pvar,qvar,pervar,indexMethod,prodIDWindow,unique_prodID,
-                          sample)
-
-
-      }else{
-        # call GEKS_w on this window
-        tempGEK <- GEKS_w(xWindow,pvar,qvar,pervar,indexMethod,prodID,
-                          sample)
-
-      }
-      newGEKS <- tempGEK$pgeo
-      if(length(tempGEK$naPairs) > 0){
-        naWarn <- paste0(naWarn, i, " to ",i+window-1,": ",
-                         tempGEK$naPairs, "\n")
-      }
-
-      # splice the new datapoint on
-      pGEKS[i+window-1,1] <- splice_t(pGEKS[i+window-2,1],oldGEKS,newGEKS,method=splice)
-    }
-  }
-
   # if there were periods where there were no overlapping products then
   # print a warning
   if(length(naWarn) > 0){
@@ -629,30 +582,3 @@ GEKSIndex <- function(x,pvar,qvar,pervar,
   return(pGEKS)
 }
 
-# function to pass the correct values to splice helper functions
-splice_t <- function(x,oldGEK,newGEK,method="mean"){
-  switch(method,
-         movement = {pt <- x*splice(length(newGEK)-1,oldGEK,newGEK)},
-         window = {pt <- x*splice(1,oldGEK,newGEK)},
-         mean = {pt <- x*meanSplice(oldGEK,newGEK)},
-         half = {pt <- x*splice(length((newGEK)-1)/2,oldGEK, newGEK)}
-  )
-  return(pt)
-}
-
-# generic function to compute the splice factor for any overlapping period
-splice <- function(period, oldGEK, newGEK){
-  w <- length(newGEK)
-  spliceFactor <- (newGEK[w]/newGEK[period])/(oldGEK[w]/oldGEK[period+1])
-}
-
-# mean splicing using the geometric mean of all overlapping periods
-meanSplice <- function(oldGEK,newGEK){
-  w <- length(newGEK)
-  pvector <- matrix(0,nrow=w-1,ncol=1)
-
-  for(l in 1:(w-1)){
-    pvector[l,1] <- splice(l, oldGEK, newGEK)
-  }
-  return(geomean(pvector))
-}
