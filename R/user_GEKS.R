@@ -15,6 +15,7 @@
 #' NOTE: \code{times} must be of class Date or numeric.
 #' @param price vector of log of prices at the given time
 #' @param id vector of distinct identification number of consumer goods
+#' @param features required if calculating 'impute-tornqvist'. Data.frame of features.
 #' @param window_length single number for length of windows of the data that
 #' regressions are fit on
 #' @param weight vector of expenditure weights used in the regressions

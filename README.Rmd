@@ -38,15 +38,15 @@ GEKS is still in development. For now it can be installed from GitHub using the 
 ```{r, eval = FALSE}
 
 devtools::install_github("MjStansfi/GEKS_package")
-devtools::install_github("grahamjwhite/IndexNumR")
 
 #Other suggestions
 # devtools::install_github("MjStansfi/FEWS_package")
 # devtools::install_github("MjStansfi/TPDdecomp")
+#devtools::install_github("grahamjwhite/IndexNumR")
 
 # Once installed, the package can be loaded as usual
 library(GEKS)
-library(IndexNumR)
+library(dplyr)
 ```
 
 # Usage
@@ -114,6 +114,79 @@ ggplot(turvey_FEWS$fews, aes(x = price_date, y = fe_indexes, colour = "FEWS")) +
   geom_line(aes(x =turvey_GEKS$geks$price_date, y= turvey_GEKS$geks$fe_indexes, colour = "GEKS-tornqvist"))+
   theme_bw() +
   ggtitle("Different multilateral, with mean splice for Turvey data")+
+  ylab("Price Index") +
+  xlab("Date")
+```
+
+# Imputation Törnqvist rolling year GEKS (ITRYGEKS)
+
+Key functions in this package have been modified to calculate a Imputation Törnqvist rolling year GEKS (ITRYGEKS) index.
+
+For this to work you need to employ the 'features' parameter of the GEKS function. Below we use this feature to calculate an index based on synthetic GfK data.
+
+```{r, synthetic summary}
+str(gfk_synthetic)
+```
+
+Now we wrangle this into the necessary format
+
+```{r, format synthetic}
+
+#Ensure that for each period there is only 1 observation of a given product
+#ie sum all quantity and value for given month/product
+gfk_synthetic <- gfk_synthetic%>%
+  group_by(month_num,prodid_num)%>%
+  mutate(quantity = sum(quantity),
+         value = sum(value))%>%
+  ungroup()%>%
+  unique
+
+#Calculate the unit value (price)
+gfk_synthetic$uv <- gfk_synthetic$value/gfk_synthetic$quantity
+
+#Extract data.frame containing features of interest
+features <-gfk_synthetic[,grepl("char",colnames(gfk_synthetic))]
+```
+
+Once the dataframe is in the correct format we can run it through the main function with index_method set to 'impute-tornqvist'.
+
+```{r, calc ITRYGEKS}
+ITRYGEKS_index <- GEKS(times = gfk_synthetic$month_num,
+                    price = gfk_synthetic$uv,
+                    id = gfk_synthetic$prodid_num,
+                    features = features,
+                    window_length = 13,
+                    weight = gfk_synthetic$value,
+                    splice_pos = "mean",
+                    index_method = "impute-tornqvist",
+                    num_cores = NULL)
+
+
+```
+
+Lets run a standard tornqvist GEKS to compare 
+
+```{r, calc GEKS}
+GEKS_index <- GEKS(times = gfk_synthetic$month_num,
+                    price = gfk_synthetic$uv,
+                    id = gfk_synthetic$prodid_num,
+                    features = NULL,
+                    window_length = 13,
+                    weight = gfk_synthetic$value,
+                    splice_pos = "mean",
+                    index_method = "tornqvist",
+                    num_cores = NULL)
+
+
+```
+
+
+```{r, geks_geks_plot}
+ggplot(ITRYGEKS_index$geks, aes(x = price_date, y = fe_indexes, colour = "ITRYGEKS")) +
+  geom_line() +
+  geom_line(aes(x =GEKS_index$geks$price_date, y= GEKS_index$geks$fe_indexes, colour = "GEKS-tornqvist"))+
+  theme_bw() +
+  ggtitle("Different multilateral, with mean splice for synthetic Gfk data")+
   ylab("Price Index") +
   xlab("Date")
 ```

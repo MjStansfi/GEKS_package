@@ -4,7 +4,7 @@
 \alias{GEKS}
 \title{GEKS-tornqvist}
 \usage{
-GEKS(times, price, id, window_length, weight = NULL,
+GEKS(times, price, id, features = NULL, window_length, weight = NULL,
   splice_pos = "mean", index_method = "tornqvist", num_cores = NULL)
 }
 \arguments{
@@ -14,6 +14,8 @@ NOTE: \code{times} must be of class Date or numeric.}
 \item{price}{vector of log of prices at the given time}
 
 \item{id}{vector of distinct identification number of consumer goods}
+
+\item{features}{required if calculating 'impute-tornqvist'. Data.frame of features.}
 
 \item{window_length}{single number for length of windows of the data that
 regressions are fit on}
@@ -25,7 +27,7 @@ This can be a number from 1 to window_length or any of
 c("window", "half","movement", "mean").}
 
 \item{index_method}{A character string to select the index number method.
-Valid index number methods are fisher or tornqvist. The default is tornqvist. (see ?IndexNumR::GEKSIndex)}
+Valid index number methods are fisher, tornqvist, impute-tronqvist. The default is tornqvist. (see ?IndexNumR::GEKSIndex)}
 
 \item{num_cores}{Number of cores to use for parallel computation.
 Convention is parallel::detectCores()-1 on local machines}
