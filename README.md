@@ -15,9 +15,21 @@ Calculation](https://cran.r-project.org/web/packages/IndexNumR/vignettes/indexnu
 -   To see the complete IndexNumR package written by Graham White [go
     here](https://github.com/grahamjwhite/IndexNumR)
 
-From the IndexNumR package it uses: \* GEKS\_w - modified \* GEKSIndex -
-modified \* utils \* fisher\_t \* fixed\_t \* tornqvist\_t \*
-ITRYGEKS\_t - newly introduced
+From the IndexNumR package it uses:
+
+-   GEKS\_w - modified
+
+-   GEKSIndex - modified
+
+-   utils
+
+-   fisher\_t
+
+-   fixed\_t
+
+-   tornqvist\_t
+
+-   ITRYGEKS\_t - newly introduced
 
 Installation
 ============
@@ -194,7 +206,7 @@ ITRYGEKS_index <- GEKS(times = synthetic_gfk$month_num,
 #> 
 #> FE model complete. Splicing results together
 #> 
-#> Finished. It took 12.6 seconds
+#> Finished. It took 21.71 seconds
 
 
 including_first_window <- c(ITRYGEKS_index$fixed_effects$fe_indexes[1:12], #Take first 12 observations
@@ -218,7 +230,7 @@ GEKS_index <- GEKS(times = synthetic_gfk$month_num,
 #> 
 #> FE model complete. Splicing results together
 #> 
-#> Finished. It took 0.79 seconds
+#> Finished. It took 0.69 seconds
 
 FEWS_index <- FEWS(times = synthetic_gfk$month_num,
                     logprice = log(synthetic_gfk$uv),
@@ -232,7 +244,7 @@ FEWS_index <- FEWS(times = synthetic_gfk$month_num,
 #> 
 #> FE model complete. Splicing results together
 #> 
-#> Finished. It took 0.49 seconds
+#> Finished. It took 0.48 seconds
 ```
 
 ``` r

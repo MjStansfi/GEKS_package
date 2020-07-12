@@ -26,12 +26,19 @@ This package is a modification of the [FEWS package](https://github.com/MjStansf
 * To see the complete IndexNumR package written by Graham White [go here](https://github.com/grahamjwhite/IndexNumR)
 
 From the IndexNumR package it uses:
+
 * GEKS_w - modified
+
 * GEKSIndex - modified
+
 * utils
+
 * fisher_t
+
 * fixed_t
+
 * tornqvist_t
+
 * ITRYGEKS_t - newly introduced
 
 # Installation
