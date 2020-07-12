@@ -1,4 +1,4 @@
-FE_model <- function(st_date, dframe, window_length,index_method) {
+FE_model <- function(st_date, dframe,features = NULL, window_length,index_method) {
 
 
   # Calculate GEKS on every window and extract the coefficients
@@ -26,14 +26,25 @@ FE_model <- function(st_date, dframe, window_length,index_method) {
   #This function does handle its own splicing and there are defaults
   #however because the dframe going in is exact length of window
   #splicing does not occur at this stage, it happens in get_geks_df
-  fe_coefs <- GEKSIndex(dframe_win,
-                                   pvar = "price",
-                                   qvar = "weight",
-                                   pervar = "times_n",
-                                   prodID = "id",
-                                   window = window_length,
-                                   indexMethod = index_method)
-
+  # browser()
+  if(index_method=="impute-tornqvist"){
+    fe_coefs <- GEKSIndex(dframe_win,
+                          pvar = "price",
+                          qvar = "weight",
+                          pervar = "times_n",
+                          prodID = colnames(features),
+                          unique_prodID = "id",
+                          window = window_length,
+                          indexMethod = index_method)
+  }else{
+    fe_coefs <- GEKSIndex(dframe_win,
+                          pvar = "price",
+                          qvar = "weight",
+                          pervar = "times_n",
+                          prodID = "id",
+                          window = window_length,
+                          indexMethod = index_method)
+  }
 
   diagnostics <- get_diagnostics(dframe_win)
 

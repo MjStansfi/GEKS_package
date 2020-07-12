@@ -256,4 +256,3 @@ length_calc <- function(index_start, window_length, verbose = TRUE){
 
   return(index_start + window_length - 1)
 }
-

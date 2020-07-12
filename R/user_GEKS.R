@@ -82,7 +82,7 @@
 #' @importFrom methods is
 #' @importFrom stats median quantile relevel
 #' @importFrom utils head setTxtProgressBar tail txtProgressBar
-GEKS <-  function(times, price, id, window_length, weight = NULL,
+GEKS <-  function(times, price, id, features=NULL, window_length, weight = NULL,
                   splice_pos = "mean",
                   index_method = "tornqvist",
                   num_cores = NULL) {
@@ -108,6 +108,18 @@ GEKS <-  function(times, price, id, window_length, weight = NULL,
                           weight = weight,
                           id = id)
 
+  if(index_method=="impute-tornqvist"){
+
+    if(is.null(features)&index_method=="impute-tornqvist"){
+      stop("You must provide a data frame of features
+         and the id when calculating impute-tornqvist")
+    }else if(index_method!="impute-tornqvist"){
+      features <- id
+    }
+
+
+  prices.df <- cbind(prices.df,features)
+  }
   # It is essential that the data frame is sorted by date
   # use an if because sorting is slow, but testing is fast
   if (is.unsorted(prices.df$times)){
@@ -149,6 +161,7 @@ GEKS <-  function(times, price, id, window_length, weight = NULL,
                                .export = rqd_data) %dopar% {
                                  FE_model (st_date = window_st_days[i],
                                            dframe = prices.df,
+                                           features = colnames(features),
                                            window_length = window_length,
                                            index_method = index_method)}
 
@@ -175,6 +188,7 @@ GEKS <-  function(times, price, id, window_length, weight = NULL,
       c(fe_indexes[[i]],
         diagnostics[[i]]) %=% FE_model(st_date = window_st_days[i],
                                        dframe = prices.df,
+                                       features = features,
                                        window_length = window_length,
                                        index_method = index_method)
 
