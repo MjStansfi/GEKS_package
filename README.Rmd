@@ -30,6 +30,7 @@ From the IndexNumR package it uses:
 * GEKSIndex - modified
 * utils
 * fisher_t
+* fixed_t
 * tornqvist_t
 * ITRYGEKS_t - newly introduced
 
@@ -125,16 +126,16 @@ Key functions in this package have been modified to calculate a Imputation Törn
 For this to work you need to employ the 'features' parameter of the GEKS function. Below we use this feature to calculate an index based on synthetic GfK data.
 
 ```{r, synthetic summary}
-str(gfk_synthetic)
+str(synthetic_gfk)
 ```
 
 Now we wrangle this into the necessary format
 
 ```{r, format synthetic}
-
+library(dplyr)
 #Ensure that for each period there is only 1 observation of a given product
 #ie sum all quantity and value for given month/product
-gfk_synthetic <- gfk_synthetic%>%
+synthetic_gfk <- synthetic_gfk%>%
   group_by(month_num,prodid_num)%>%
   mutate(quantity = sum(quantity),
          value = sum(value))%>%
@@ -142,39 +143,53 @@ gfk_synthetic <- gfk_synthetic%>%
   unique
 
 #Calculate the unit value (price)
-gfk_synthetic$uv <- gfk_synthetic$value/gfk_synthetic$quantity
+synthetic_gfk$uv <- synthetic_gfk$value/synthetic_gfk$quantity
 
 #Extract data.frame containing features of interest
-features <-gfk_synthetic[,grepl("char",colnames(gfk_synthetic))]
+features <-synthetic_gfk[,grepl("char",colnames(synthetic_gfk))]
 ```
 
 Once the dataframe is in the correct format we can run it through the main function with index_method set to 'impute-tornqvist'.
 
 ```{r, calc ITRYGEKS}
-ITRYGEKS_index <- GEKS(times = gfk_synthetic$month_num,
-                    price = gfk_synthetic$uv,
-                    id = gfk_synthetic$prodid_num,
+ITRYGEKS_index <- GEKS(times = synthetic_gfk$month_num,
+                    price = synthetic_gfk$uv,
+                    id = synthetic_gfk$prodid_num,
                     features = features,
                     window_length = 13,
-                    weight = gfk_synthetic$value,
+                    weight = synthetic_gfk$value,
                     splice_pos = "mean",
                     index_method = "impute-tornqvist",
                     num_cores = NULL)
 
 
+including_first_window <- c(ITRYGEKS_index$fixed_effects$fe_indexes[1:12], #Take first 12 observations
+                            ITRYGEKS_index$geks$fe_indexes*ITRYGEKS_index$fixed_effects$fe_indexes[13]) #Manually splice on at position 13(window length)
+
+
+
+
 ```
 
-Lets run a standard tornqvist GEKS to compare
+Lets run a standard tornqvist GEKS and FEWS to compare
 
 ```{r, calc GEKS}
-GEKS_index <- GEKS(times = gfk_synthetic$month_num,
-                    price = gfk_synthetic$uv,
-                    id = gfk_synthetic$prodid_num,
+GEKS_index <- GEKS(times = synthetic_gfk$month_num,
+                    price = synthetic_gfk$uv,
+                    id = synthetic_gfk$prodid_num,
                     features = NULL,
                     window_length = 13,
-                    weight = gfk_synthetic$value,
+                    weight = synthetic_gfk$value,
                     splice_pos = "mean",
                     index_method = "tornqvist",
+                    num_cores = NULL)
+
+FEWS_index <- FEWS(times = synthetic_gfk$month_num,
+                    logprice = log(synthetic_gfk$uv),
+                    id = synthetic_gfk$prodid_num,
+                    window_length = 13,
+                    weight =  synthetic_gfk$value,
+                    splice_pos = "mean",
                     num_cores = NULL)
 
 
@@ -182,9 +197,10 @@ GEKS_index <- GEKS(times = gfk_synthetic$month_num,
 
 
 ```{r, geks_geks_plot}
-ggplot(ITRYGEKS_index$geks, aes(x = price_date, y = fe_indexes, colour = "ITRYGEKS")) +
+ggplot(ITRYGEKS_index$geks, aes(x =ITRYGEKS_index$geks$price_date, y = ITRYGEKS_index$geks$fe_indexes, colour = "ITRYGEKS")) +
   geom_line() +
   geom_line(aes(x =GEKS_index$geks$price_date, y= GEKS_index$geks$fe_indexes, colour = "GEKS-tornqvist"))+
+  geom_line(aes(x =FEWS_index$fews$price_date, y= FEWS_index$fews$fe_indexes, colour = "FEWS"))+
   theme_bw() +
   ggtitle("Different multilateral, with mean splice for synthetic Gfk data")+
   ylab("Price Index") +

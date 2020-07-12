@@ -26,13 +26,14 @@ FE_model <- function(st_date, dframe,features = NULL, window_length,index_method
   #This function does handle its own splicing and there are defaults
   #however because the dframe going in is exact length of window
   #splicing does not occur at this stage, it happens in get_geks_df
-  # browser()
+
   if(index_method=="impute-tornqvist"){
+    # browser()
     fe_coefs <- GEKSIndex(dframe_win,
                           pvar = "price",
                           qvar = "weight",
                           pervar = "times_n",
-                          prodID = colnames(features),
+                          prodID = features,
                           unique_prodID = "id",
                           window = window_length,
                           indexMethod = index_method)
@@ -259,6 +260,8 @@ ITRYGEKS_t <- function(p0,p1,q0,q1,f0,f1,id0,id1){
 
 
   #Modify expenditure shares
+  # browser()
+
   mod_q <- data.frame(period=c(rep(0,length(id0)),rep(1,length(id1))),
                       id=c(id0,id1),
                       q=c(q0,q1),
@@ -324,6 +327,10 @@ fisher_t <- function(p0,p1,q0,q1){
   las <- fixed_t(p0,p1,q0)
   pas <- fixed_t(p0,p1,q1)
   return(sqrt((las*pas)))
+}
+
+fixed_t <- function(p0,p1,q){
+  return(sum(p1*q)/sum(p0*q))
 }
 
 tornqvist_t <- function(p0,p1,q0,q1){
@@ -431,12 +438,12 @@ GEKS_w <- function(x,pvar,qvar,pervar,indexMethod="tornqvist",prodID,
 
           }
           # calculate the price index for 'base' period j and 'next' period k
-          # if(j==1&k==7){browser()}
+          # browser()
           switch(tolower(indexMethod),
                  fisher = {pindices[j,k] <- fisher_t(p0,p1,q0,q1)},
                  tornqvist = {pindices[j,k] <- tornqvist_t(p0,p1,q0,q1)},
                  'impute-tornqvist' = {pindices[j,k] <- ITRYGEKS_t(p0,p1,q0,q1,f0,f1,id0,id1)})
-
+          # cat(j,k,pindices[j,k],'\n')
         }
 
       }
@@ -538,6 +545,7 @@ GEKSIndex <- function(x,pvar,qvar,pervar,
     stop("The window length exceeds the number of periods in the data")
   }
 
+  # browser()
   # sort the dataset by time period and product ID
   x <- x[order(x[[pervar]], x[[unique_prodID]]),]
 
