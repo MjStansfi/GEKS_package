@@ -22,5 +22,24 @@
 "turvey"
 
 
+#' Synthetic scanner data for one consumer electronic product
+#'
+#' GfK have made this available as a public good for the international statistical community, to aid research into new price index methods.
+#'
+#'The data is based on one product category from the scanner data used in production of the New Zealand Consumers Price Index.
+#'
+#'The synthetic data has been heavily modified to remove identification potential, while still retaining some of the characteristics of
+#'scanner data which make traditional index methods inadequate - such as high product turnover and volatile price and quantities - which motivate
+#'the multilateral index methods that are currently being researched within the international statistical community.
+#'
+#' @format data frame with 5509 rows and 15 variables
+#' \describe{
+#'   \item{month_num}{Month number, 0-25}
+#'   \item{char1-11}{Product characteristics}
+#'   \item{prodid_num}{Product identifier, created from unique characteristics}
+#'   \item{quantity}{The quantity of items sold in that month as an integar}
+#'   \item{value}{Sales total (NZD)}}
+#'
+#' @source {GfK New Zealand}
+"synthetic_gfk"
 
-"gfk_synthetic"

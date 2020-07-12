@@ -4,8 +4,16 @@
 \alias{GEKS_w}
 \title{GEKS_w}
 \usage{
-GEKS_w(x, pvar, qvar, pervar, indexMethod = "tornqvist", prodID,
-  unique_prodID = NULL, sample = "matched")
+GEKS_w(
+  x,
+  pvar,
+  qvar,
+  pervar,
+  indexMethod = "tornqvist",
+  prodID,
+  unique_prodID = NULL,
+  sample = "matched"
+)
 }
 \description{
 Function to compute a GEKS index over a window.

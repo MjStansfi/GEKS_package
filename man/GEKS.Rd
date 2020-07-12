@@ -4,8 +4,17 @@
 \alias{GEKS}
 \title{GEKS-tornqvist}
 \usage{
-GEKS(times, price, id, features = NULL, window_length, weight = NULL,
-  splice_pos = "mean", index_method = "tornqvist", num_cores = NULL)
+GEKS(
+  times,
+  price,
+  id,
+  features = NULL,
+  window_length,
+  weight = NULL,
+  splice_pos = "mean",
+  index_method = "tornqvist",
+  num_cores = NULL
+)
 }
 \arguments{
 \item{times}{vector of the times at which price observations were made. \cr

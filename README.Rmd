@@ -164,7 +164,7 @@ ITRYGEKS_index <- GEKS(times = gfk_synthetic$month_num,
 
 ```
 
-Lets run a standard tornqvist GEKS to compare 
+Lets run a standard tornqvist GEKS to compare
 
 ```{r, calc GEKS}
 GEKS_index <- GEKS(times = gfk_synthetic$month_num,
