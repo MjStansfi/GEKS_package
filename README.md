@@ -44,7 +44,7 @@ devtools::install_github("MjStansfi/GEKS_package")
 #Other suggestions
 # devtools::install_github("MjStansfi/FEWS_package")
 # devtools::install_github("MjStansfi/TPDdecomp")
-#devtools::install_github("grahamjwhite/IndexNumR")
+# devtools::install_github("grahamjwhite/IndexNumR")
 
 # Once installed, the package can be loaded as usual
 library(GEKS)
