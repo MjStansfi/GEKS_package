@@ -255,7 +255,6 @@ splice_update <- function (win_old, win_new, splice_pos){
   return (update_factor)
 }
 
-
 ITRYGEKS_t <- function(p0,p1,q0,q1,f0,f1,id0,id1){
 
 
@@ -341,6 +340,10 @@ tornqvist_t <- function(p0,p1,q0,q1){
   return(prod((p1/p0)^(0.5*(s0+s1))))
 }
 
+jevons_t <- function(p0,p1){
+  return(prod((p1/p0)^(1/length(p0))))
+}
+
 # IndexNumR: a package for index number computation
 # Copyright (C) 2018 Graham J. White (g.white@unswalumni.com)
 #
@@ -384,6 +387,7 @@ GEKS_w <- function(x,pvar,qvar,pervar,indexMethod="tornqvist",prodID,
 
   # for every period in the window...
   for(j in 1:window){
+
 
     # for every period in the window...
     for(k in 1:window){
@@ -442,8 +446,8 @@ GEKS_w <- function(x,pvar,qvar,pervar,indexMethod="tornqvist",prodID,
           switch(tolower(indexMethod),
                  fisher = {pindices[j,k] <- fisher_t(p0,p1,q0,q1)},
                  tornqvist = {pindices[j,k] <- tornqvist_t(p0,p1,q0,q1)},
-                 'impute-tornqvist' = {pindices[j,k] <- ITRYGEKS_t(p0,p1,q0,q1,f0,f1,id0,id1)})
-          # cat(j,k,pindices[j,k],'\n')
+                 'impute-tornqvist' = {pindices[j,k] <- ITRYGEKS_t(p0,p1,q0,q1,f0,f1,id0,id1)},
+                 jevons = {pindices[j,k] <- jevons_t(p0,p1)})
         }
 
       }
@@ -519,7 +523,7 @@ GEKSIndex <- function(x,pvar,qvar,pervar,
 
 
   # check that only valid index methods are chosen
-  if(!(tolower(indexMethod) %in% c("fisher","tornqvist","impute-tornqvist"))){
+  if(!(tolower(indexMethod) %in% c("fisher","tornqvist","impute-tornqvist","jevons"))){
     stop("Not a valid index number method.")
   }
 

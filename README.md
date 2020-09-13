@@ -5,7 +5,7 @@ GEKS
 This package is a modification of the [FEWS
 package](https://github.com/MjStansfi/FEWS_package). Where the
 individual fixed effects calculation occurs, it has been replaced by a
-(modified to include imputed-tornqvist) GEKS calculation from
+(modified to include imputed-tornqvist and jevons) GEKS calculation from
 [IndexNumR: A Package for Index Number
 Calculation](https://cran.r-project.org/web/packages/IndexNumR/vignettes/indexnumr.html#the-geks-method).
 
@@ -29,6 +29,8 @@ From the IndexNumR package it uses:
 
 -   tornqvist\_t
 
+-   jevons\_t
+
 -   ITRYGEKS\_t - newly introduced
 
 Installation
@@ -49,6 +51,7 @@ devtools::install_github("MjStansfi/GEKS_package")
 # Once installed, the package can be loaded as usual
 library(GEKS)
 library(dplyr)
+library(ggplot2)
 ```
 
 Usage
@@ -112,7 +115,7 @@ turvey_FEWS <-FEWS(times = turvey$month,
                     id = turvey$commodity,
                     window_length = 13,
                     weight = turvey$price * turvey$quantity,
-                    splice_pos = "mean",
+                    splice_pos = "geomean",
                     num_cores = NULL)
 ```
 
@@ -137,7 +140,7 @@ Key functions in this package have been modified to calculate a
 Imputation Törnqvist rolling year GEKS (ITRYGEKS) index.
 
 For this to work you need to employ the ‘features’ parameter of the GEKS
-function. Below we use this parameter to calculate an index based on
+function. Below we use this feature to calculate an index based on
 synthetic GfK data.
 
 ``` r
@@ -160,11 +163,18 @@ str(synthetic_gfk)
 #>  $ value     : int  196420 85312 95920 38552 47397 28303 14812 13701 6304 10651 ...
 ```
 
-Wrangle this into the necessary format
+Now we wrangle this into the necessary format
 
 ``` r
 library(dplyr)
-
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
 #Ensure that for each period there is only 1 observation of a given product
 #ie sum all quantity and value for given month/product
 synthetic_gfk <- synthetic_gfk%>%
@@ -194,6 +204,13 @@ ITRYGEKS_index <- GEKS(times = synthetic_gfk$month_num,
                     splice_pos = "mean",
                     index_method = "impute-tornqvist",
                     num_cores = NULL)
+#> Number of windows: 14 
+#>   |                                                                         |                                                                 |   0%  |                                                                         |=====                                                            |   7%  |                                                                         |=========                                                        |  14%  |                                                                         |==============                                                   |  21%  |                                                                         |===================                                              |  29%  |                                                                         |=======================                                          |  36%  |                                                                         |============================                                     |  43%  |                                                                         |================================                                 |  50%  |                                                                         |=====================================                            |  57%  |                                                                         |==========================================                       |  64%  |                                                                         |==============================================                   |  71%  |                                                                         |===================================================              |  79%  |                                                                         |========================================================         |  86%  |                                                                         |============================================================     |  93%  |                                                                         |=================================================================| 100%
+#> 
+#> FE model complete. Splicing results together
+#> 
+#> Finished. It took 19.4 seconds
+
 
 including_first_window <- c(ITRYGEKS_index$fixed_effects$fe_indexes[1:12], #Take first 12 observations
                             ITRYGEKS_index$geks$fe_indexes*ITRYGEKS_index$fixed_effects$fe_indexes[13]) #Manually splice on at position 13(window length)
@@ -208,17 +225,29 @@ GEKS_index <- GEKS(times = synthetic_gfk$month_num,
                     features = NULL,
                     window_length = 13,
                     weight = synthetic_gfk$value,
-                    splice_pos = "mean",
+                    splice_pos = "geomean",
                     index_method = "tornqvist",
                     num_cores = NULL)
+#> Number of windows: 14 
+#>   |                                                                         |                                                                 |   0%  |                                                                         |=====                                                            |   7%  |                                                                         |=========                                                        |  14%  |                                                                         |==============                                                   |  21%  |                                                                         |===================                                              |  29%  |                                                                         |=======================                                          |  36%  |                                                                         |============================                                     |  43%  |                                                                         |================================                                 |  50%  |                                                                         |=====================================                            |  57%  |                                                                         |==========================================                       |  64%  |                                                                         |==============================================                   |  71%  |                                                                         |===================================================              |  79%  |                                                                         |========================================================         |  86%  |                                                                         |============================================================     |  93%  |                                                                         |=================================================================| 100%
+#> 
+#> FE model complete. Splicing results together
+#> 
+#> Finished. It took 0.63 seconds
 
 FEWS_index <- FEWS(times = synthetic_gfk$month_num,
                     logprice = log(synthetic_gfk$uv),
                     id = synthetic_gfk$prodid_num,
                     window_length = 13,
                     weight =  synthetic_gfk$value,
-                    splice_pos = "mean",
+                    splice_pos = "geomean",
                     num_cores = NULL)
+#> Number of windows: 14 
+#>   |                                                                         |                                                                 |   0%  |                                                                         |=====                                                            |   7%  |                                                                         |=========                                                        |  14%  |                                                                         |==============                                                   |  21%  |                                                                         |===================                                              |  29%  |                                                                         |=======================                                          |  36%  |                                                                         |============================                                     |  43%  |                                                                         |================================                                 |  50%  |                                                                         |=====================================                            |  57%  |                                                                         |==========================================                       |  64%  |                                                                         |==============================================                   |  71%  |                                                                         |===================================================              |  79%  |                                                                         |========================================================         |  86%  |                                                                         |============================================================     |  93%  |                                                                         |=================================================================| 100%
+#> 
+#> FE model complete. Splicing results together
+#> 
+#> Finished. It took 0.44 seconds
 ```
 
 ``` r

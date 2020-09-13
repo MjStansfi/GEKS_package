@@ -19,7 +19,7 @@ library(FEWS)
 
 # GEKS
 
-This package is a modification of the [FEWS package](https://github.com/MjStansfi/FEWS_package). Where the individual fixed effects calculation occurs, it has been replaced by a (modified to include imputed-tornqvist) GEKS calculation from [IndexNumR: A Package for Index Number Calculation](https://cran.r-project.org/web/packages/IndexNumR/vignettes/indexnumr.html#the-geks-method). 
+This package is a modification of the [FEWS package](https://github.com/MjStansfi/FEWS_package). Where the individual fixed effects calculation occurs, it has been replaced by a (modified to include imputed-tornqvist and jevons) GEKS calculation from [IndexNumR: A Package for Index Number Calculation](https://cran.r-project.org/web/packages/IndexNumR/vignettes/indexnumr.html#the-geks-method). 
 
 * To see the original FEWS package written by Donal Lynch [go here](https://github.com/Donal-lynch/FEWS_package)
 
@@ -39,6 +39,8 @@ From the IndexNumR package it uses:
 
 * tornqvist_t
 
+* jevons_t
+
 * ITRYGEKS_t - newly introduced
 
 # Installation
@@ -50,11 +52,12 @@ devtools::install_github("MjStansfi/GEKS_package")
 #Other suggestions
 # devtools::install_github("MjStansfi/FEWS_package")
 # devtools::install_github("MjStansfi/TPDdecomp")
-#devtools::install_github("grahamjwhite/IndexNumR")
+# devtools::install_github("grahamjwhite/IndexNumR")
 
 # Once installed, the package can be loaded as usual
 library(GEKS)
 library(dplyr)
+library(ggplot2)
 ```
 
 # Usage
@@ -111,7 +114,7 @@ turvey_FEWS <-FEWS(times = turvey$month,
                     id = turvey$commodity,
                     window_length = 13,
                     weight = turvey$price * turvey$quantity,
-                    splice_pos = "mean",
+                    splice_pos = "geomean",
                     num_cores = NULL)
 
 ```
@@ -187,7 +190,7 @@ GEKS_index <- GEKS(times = synthetic_gfk$month_num,
                     features = NULL,
                     window_length = 13,
                     weight = synthetic_gfk$value,
-                    splice_pos = "mean",
+                    splice_pos = "geomean",
                     index_method = "tornqvist",
                     num_cores = NULL)
 
@@ -196,7 +199,7 @@ FEWS_index <- FEWS(times = synthetic_gfk$month_num,
                     id = synthetic_gfk$prodid_num,
                     window_length = 13,
                     weight =  synthetic_gfk$value,
-                    splice_pos = "mean",
+                    splice_pos = "geomean",
                     num_cores = NULL)
 
 

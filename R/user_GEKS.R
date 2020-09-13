@@ -1,4 +1,4 @@
-#' GEKS-tornqvist
+#' GEKS
 #'
 #' Takes a time series of prices and id's and returns an index using the GEKS
 #' method.
@@ -23,7 +23,7 @@
 #' This can be a number from 1 to window_length or any of
 #' c("window", "half","movement", "mean").
 #' @param index_method A character string to select the index number method.
-#' Valid index number methods are fisher, tornqvist, impute-tronqvist. The default is tornqvist. (see ?IndexNumR::GEKSIndex)
+#' Valid index number methods are fisher, tornqvist, impute-tronqvist, jevons. The default is tornqvist. (see ?IndexNumR::GEKSIndex)
 #' @param num_cores Number of cores to use for parallel computation.
 #' Convention is parallel::detectCores()-1 on local machines
 #' @return The function returns a list of 3 items:
@@ -76,6 +76,15 @@
 #' weight = turvey$price * turvey$quantity,
 #' splice_pos = "mean",
 #' num_cores = 2)
+#'
+#' GEKS(times = turvey$month,
+#' price = turvey$price,
+#' id = turvey$commodity,
+#' window_length = 5,
+#' weight = NULL,
+#' index_method = "jevons",
+#' splice_pos = "mean",
+#' num_cores = NULL)
 #'
 #' @export
 #' @import dplyr
