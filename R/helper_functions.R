@@ -1,22 +1,22 @@
 check_inputs <- function (times = times, price = price, id = id,
-                          weight = weight, window_length = window_length,
+                          quantity = quantity, window_length = window_length,
                           splice_pos = splice_pos) {
   # Function to confirm that all inputs are correct shape and class
   # Returns all inputs, but some may be modified to the correct data type
 
-  if (missing(weight) | is.null(weight)){
-    weight <- rep(1, length(times))
-    cat("\nNo weighting assigned...All weights set to 1\n")
+  if (missing(quantity) | is.null(quantity)){
+    quantity <- rep(1, length(times))
+    cat("\nNo quantity assigned...All quantities set to 1\n")
   }
 
 
-  if (anyNA(times) | anyNA(price) | anyNA(id) | anyNA(weight)){
+  if (anyNA(times) | anyNA(price) | anyNA(id) | anyNA(quantity)){
     stop("Data contains NA values")
   }
 
   if (any(c(is.infinite(times),
             is.infinite(price),
-            is.infinite(weight)))){
+            is.infinite(quantity)))){
     stop("Data contains Infinite values")
   }
 
@@ -25,8 +25,8 @@ check_inputs <- function (times = times, price = price, id = id,
     stop("times and price should be vectors of the same length")
   }else if (length(times) != length(id)){
     stop("times and id should be vectors of the same length")
-  }else if (length(times) != length(weight)){
-    stop("times and weight should be vectors of the same length")
+  }else if (length(times) != length(quantity)){
+    stop("times and quantity should be vectors of the same length")
   }else if (!(length(window_length) == 1 &
               class(window_length) %in% c("numeric", "integer"))) {
     stop("window_length should be a single number")
@@ -62,7 +62,7 @@ check_inputs <- function (times = times, price = price, id = id,
     }
   }
 
-  return (list(times = times, price = price, id = id, weight = weight,
+  return (list(times = times, price = price, id = id, quantity = quantity,
                window_length = window_length, splice_pos = splice_pos))
 }
 

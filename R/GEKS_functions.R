@@ -31,7 +31,7 @@ FE_model <- function(st_date, dframe,features = NULL, window_length,index_method
     # browser()
     fe_coefs <- GEKSIndex(dframe_win,
                           pvar = "price",
-                          qvar = "weight",
+                          qvar = "quantity",
                           pervar = "times_n",
                           prodID = features,
                           unique_prodID = "id",
@@ -40,7 +40,7 @@ FE_model <- function(st_date, dframe,features = NULL, window_length,index_method
   }else{
     fe_coefs <- GEKSIndex(dframe_win,
                           pvar = "price",
-                          qvar = "weight",
+                          qvar = "quantity",
                           pervar = "times_n",
                           prodID = "id",
                           window = window_length,
@@ -64,7 +64,7 @@ get_diagnostics <- function (dframe){
 
   # contrib_rids_pc - the % of ids which exist in the window that contribute
   # contrib_rids_nm - the number of ids which exist in the window that contribute
-  # weight_captured - proportion of total weight captured by those with more than 1 observation
+  # quantity_captured - proportion of total quantity captured by those with more than 1 observation
   # total_rids_in_data - number of rids in the entire dataset
   # total_rids_in_window - number of rids which exist in the window
   # num_records_in_window - The quantity of data in this window
@@ -80,22 +80,22 @@ get_diagnostics <- function (dframe){
     summarise(n = n()) %>%
     pull(n)
 
-  captured_weight <- dframe %>%
+  captured_quantity <- dframe %>%
     droplevels() %>%
     group_by(id)%>%
     filter(n() > 1)%>%
     ungroup() %>%
-    summarise(weight = sum(weight))%>%
-    pull(weight)
+    summarise(quantity = sum(quantity))%>%
+    pull(quantity)
 
-  total_weight <- dframe %>%
+  total_quantity <- dframe %>%
     ungroup() %>%
-    summarise(weight = sum(weight)) %>%
-    pull(weight)
+    summarise(quantity = sum(quantity)) %>%
+    pull(quantity)
 
 
   data.frame(contrib_rids_pc = mean(entries_per_rid > 1)*100,
-             weight_captured = captured_weight/total_weight,
+             quantity_captured = captured_quantity/total_quantity,
              contrib_rids_nm = sum(entries_per_rid > 1),
              total_rids_in_data = nlevels(dframe$id),
              total_rids_in_window = length(entries_per_rid),

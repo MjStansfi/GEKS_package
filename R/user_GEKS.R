@@ -18,7 +18,7 @@
 #' @param features required if calculating 'impute-tornqvist'. Data.frame of features.
 #' @param window_length single number for length of windows of the data that
 #' regressions are fit on
-#' @param weight vector of expenditure weights used in the regressions
+#' @param quantity vector of quantities
 #' @param splice_pos The position on which to splice the windows together.
 #' This can be a number from 1 to window_length or any of
 #' c("window", "half","movement", "mean").
@@ -65,7 +65,7 @@
 #' price = turvey$price,
 #' id = turvey$commodity,
 #' window_length = 5,
-#' weight = turvey$price * turvey$quantity,
+#' quantity = turvey$quantity,
 #' splice_pos = "mean",
 #' num_cores = NULL)
 #'
@@ -73,7 +73,7 @@
 #' price = turvey$price,
 #' id = turvey$commodity,
 #' window_length = 5,
-#' weight = turvey$price * turvey$quantity,
+#' quantity = turvey$quantity,
 #' splice_pos = "mean",
 #' num_cores = 2)
 #'
@@ -81,7 +81,7 @@
 #' price = turvey$price,
 #' id = turvey$commodity,
 #' window_length = 5,
-#' weight = NULL,
+#' quantity = NULL,
 #' index_method = "jevons",
 #' splice_pos = "mean",
 #' num_cores = NULL)
@@ -92,7 +92,7 @@
 #' @importFrom methods is
 #' @importFrom stats median quantile relevel
 #' @importFrom utils head setTxtProgressBar tail txtProgressBar
-GEKS <-  function(times, price, id, features=NULL, window_length, weight = NULL,
+GEKS <-  function(times, price, id, features=NULL, window_length, quantity = NULL,
                   splice_pos = "mean",
                   index_method = "tornqvist",
                   num_cores = NULL) {
@@ -103,11 +103,11 @@ GEKS <-  function(times, price, id, features=NULL, window_length, weight = NULL,
   # check arguments are all legit
   # times will be converted to numeric if it is a date, and a date_flag is
   # returned so that the times can be coerced back into a date before returning
-  c(times, price, id, weight, window_length, splice_pos) %=%
+  c(times, price, id, quantity, window_length, splice_pos) %=%
     check_inputs (times = times,
                   price = price,
                   id = id,
-                  weight = weight,
+                  quantity = quantity,
                   window_length = window_length,
                   splice_pos = splice_pos)
 
@@ -115,7 +115,7 @@ GEKS <-  function(times, price, id, features=NULL, window_length, weight = NULL,
   # make a data frame from all of the inputs
   prices.df <- data.frame(times = times,
                           price = price,
-                          weight = weight,
+                          quantity = quantity,
                           id = id)
 
   if(is.null(features)&index_method=="impute-tornqvist"){
