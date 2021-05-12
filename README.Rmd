@@ -78,14 +78,14 @@ ggplot(turvey, aes(x = month, y = price)) +
 
 ```
 
-The GEKS is calculated below with a mean splice and a window length of 13 months.
+The GEKS is calculated below with a mean splice and a window length of 13 months. Note the difference being the FEWS function takes 'weights' while the GEKS function takes quantities.
 
 ```{r fews_calculation, results='hide'}
 turvey_GEKS <- GEKS(times = turvey$month,
                     price = turvey$price,
+                    quantity = turvey$quantity,
                     id = turvey$commodity,
                     window_length = 13,
-                    weight = turvey$price * turvey$quantity,
                     splice_pos = "mean",
                     index_method = "tornqvist",
                     num_cores = NULL)
@@ -164,10 +164,10 @@ Once the dataframe is in the correct format we can run it through the main funct
 ```{r, calc ITRYGEKS}
 ITRYGEKS_index <- GEKS(times = synthetic_gfk$month_num,
                     price = synthetic_gfk$uv,
+                    quantity = synthetic_gfk$quantity,
                     id = synthetic_gfk$prodid_num,
                     features = features,
                     window_length = 13,
-                    weight = synthetic_gfk$value,
                     splice_pos = "mean",
                     index_method = "impute-tornqvist",
                     num_cores = NULL)
@@ -186,10 +186,10 @@ Lets run a standard tornqvist GEKS and FEWS to compare
 ```{r, calc GEKS}
 GEKS_index <- GEKS(times = synthetic_gfk$month_num,
                     price = synthetic_gfk$uv,
+                    quantity = synthetic_gfk$quantity,
                     id = synthetic_gfk$prodid_num,
                     features = NULL,
                     window_length = 13,
-                    weight = synthetic_gfk$value,
                     splice_pos = "geomean",
                     index_method = "tornqvist",
                     num_cores = NULL)

@@ -80,14 +80,15 @@ ggplot(turvey, aes(x = month, y = price)) +
 ![](README-data_viz-1.png)
 
 The GEKS is calculated below with a mean splice and a window length of
-13 months.
+13 months. Note the difference being the FEWS function takes ‘weights’
+while the GEKS function takes quantities.
 
 ``` r
 turvey_GEKS <- GEKS(times = turvey$month,
                     price = turvey$price,
+                    quantity = turvey$quantity,
                     id = turvey$commodity,
                     window_length = 13,
-                    weight = turvey$price * turvey$quantity,
                     splice_pos = "mean",
                     index_method = "tornqvist",
                     num_cores = NULL)
@@ -197,10 +198,10 @@ main function with index\_method set to ‘impute-tornqvist’.
 ``` r
 ITRYGEKS_index <- GEKS(times = synthetic_gfk$month_num,
                     price = synthetic_gfk$uv,
+                    quantity = synthetic_gfk$quantity,
                     id = synthetic_gfk$prodid_num,
                     features = features,
                     window_length = 13,
-                    weight = synthetic_gfk$value,
                     splice_pos = "mean",
                     index_method = "impute-tornqvist",
                     num_cores = NULL)
@@ -209,7 +210,7 @@ ITRYGEKS_index <- GEKS(times = synthetic_gfk$month_num,
 #> 
 #> FE model complete. Splicing results together
 #> 
-#> Finished. It took 19.4 seconds
+#> Finished. It took 34.79 seconds
 
 
 including_first_window <- c(ITRYGEKS_index$fixed_effects$fe_indexes[1:12], #Take first 12 observations
@@ -221,10 +222,10 @@ Lets run a standard tornqvist GEKS and FEWS to compare
 ``` r
 GEKS_index <- GEKS(times = synthetic_gfk$month_num,
                     price = synthetic_gfk$uv,
+                    quantity = synthetic_gfk$quantity,
                     id = synthetic_gfk$prodid_num,
                     features = NULL,
                     window_length = 13,
-                    weight = synthetic_gfk$value,
                     splice_pos = "geomean",
                     index_method = "tornqvist",
                     num_cores = NULL)
@@ -233,7 +234,7 @@ GEKS_index <- GEKS(times = synthetic_gfk$month_num,
 #> 
 #> FE model complete. Splicing results together
 #> 
-#> Finished. It took 0.63 seconds
+#> Finished. It took 0.8 seconds
 
 FEWS_index <- FEWS(times = synthetic_gfk$month_num,
                     logprice = log(synthetic_gfk$uv),
@@ -247,7 +248,7 @@ FEWS_index <- FEWS(times = synthetic_gfk$month_num,
 #> 
 #> FE model complete. Splicing results together
 #> 
-#> Finished. It took 0.44 seconds
+#> Finished. It took 0.65 seconds
 ```
 
 ``` r
