@@ -258,12 +258,11 @@ splice_update <- function (win_old, win_new, splice_pos){
 ITRYGEKS_t <- function(p0,p1,q0,q1,f0,f1,id0,id1){
 
 
-  #Modify expenditure shares
-  # browser()
+  #Create then modify exp_share
 
   mod_q <- data.frame(period=c(rep(0,length(id0)),rep(1,length(id1))),
                       id=c(id0,id1),
-                      q=c(q0,q1),
+                      q=c(q0,q1)*c(p0,p1), #Now exp_share
                       stringsAsFactors = F)
 
   mod_q <- mod_q%>%
@@ -281,6 +280,7 @@ ITRYGEKS_t <- function(p0,p1,q0,q1,f0,f1,id0,id1){
     stop("An ID in a given period is appearing more than once. Aggregate your input dataframe first so there
          is only 1 observation in each period for a given ID.")
   }
+
   p <- log(c(p0,p1)) #log price
   q <- mod_q$exp_share #c(q0,q1)
   f <- bind_rows(f0,f1)
